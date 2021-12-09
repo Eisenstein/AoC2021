@@ -37,15 +37,14 @@ fun main() {
             val queue = ArrayDeque(listOf(point))
             while (queue.any()) {
                 val cur = queue.removeFirst()
-                if (cur in used || cur.height() == 9) {
+                if (cur in used) {
                     continue
                 }
+                used.add(cur)
                 cur.neighbours()
-                    .filter { it !in used }
-                    .takeIf { it.all { p -> p.height() >= cur.height() } }
-                    ?.also {
-                        used.add(cur)
-                        queue.addAll(it)
+                    .filter { it !in used && it.height() != 9 }
+                    .forEach {
+                        queue.addLast(it)
                     }
             }
             used.toSet()

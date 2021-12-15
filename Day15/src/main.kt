@@ -1,4 +1,4 @@
-import java.util.PriorityQueue
+import java.util.TreeSet
 import kotlin.io.path.Path
 import kotlin.io.path.bufferedReader
 
@@ -28,10 +28,8 @@ fun main() {
             tile.map { line ->
                 (0 until 5)
                     .flatMap { c -> line.map { (it + r + c - 1) % 9 + 1 } }
-                    .toList()
             }
         }
-        .toList()
 
     fun Pair<Int, Int>.riskLevel() = input[first][second]
 
@@ -44,15 +42,16 @@ fun main() {
 
     fun Pair<Int, Int>.distance() = distances.getOrDefault(this, Int.MAX_VALUE)
 
-    val queue = PriorityQueue<Pair<Int, Int>>(Comparator.comparing { it.distance() })
-    queue.offer(0 to 0)
-    while (queue.any()) {
-        val cur = queue.poll()
+    val tree = TreeSet(compareBy<Pair<Int, Int>> { it.distance() }
+        .then(compareBy({it.first}, {it.second})))
+    tree.add(0 to 0)
+    while (tree.any()) {
+        val cur = tree.pollFirst()!!
         for (p in cur.neighbours()) {
             if (cur.distance() + p.riskLevel() < p.distance()) {
+                tree.remove(p)
                 distances[p] = cur.distance() + p.riskLevel()
-                queue.remove(p)
-                queue.offer(p)
+                tree.add(p)
             }
         }
     }
